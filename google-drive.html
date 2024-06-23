@@ -1,0 +1,223 @@
+<!-- Google Credentials Config Node Configuration -->
+<script type="text/javascript">
+    RED.nodes.registerType('google-credentials', {
+        category: 'config',
+        defaults: {
+            name: { value: "" },
+            clientId: { value: "", required: true },
+            clientSecret: { value: "", required: true },
+            redirectUri: { value: "", required: true },
+            scopes: { value: "https://www.googleapis.com/auth/drive" }
+        },
+        credentials: {
+            clientId: { type: "password" },
+            clientSecret: { type: "password" }
+        },
+        label: function() {
+            return this.name || "Google API Credentials";
+        },
+        oneditprepare: function() {
+            const node = this;
+
+            function updateAuthButton() {
+                const clientId = $("#node-config-input-clientId").val();
+                const clientSecret = $("#node-config-input-clientSecret").val();
+                const redirectUri = $("#node-config-input-redirectUri").val();
+                $("#node-config-start-auth").toggleClass("disabled", !clientId || !clientSecret || !redirectUri);
+            }
+
+            $("#node-config-input-clientId").on('input', updateAuthButton);
+            $("#node-config-input-clientSecret").on('input', updateAuthButton);
+            $("#node-config-input-redirectUri").on('input', updateAuthButton);
+
+            updateAuthButton();
+
+            $("#node-config-start-auth").click(function () {
+                const clientId = $("#node-config-input-clientId").val();
+                const clientSecret = $("#node-config-input-clientSecret").val();
+                const redirectUri = $("#node-config-input-redirectUri").val();
+                const state = node.id;
+                const scopes = $("#node-config-input-scopes").val();
+
+                if (clientId && clientSecret && redirectUri) {
+                    const url = `/google-credentials/auth?id=${state}&clientId=${encodeURIComponent(clientId)}&clientSecret=${encodeURIComponent(clientSecret)}&callback=${encodeURIComponent(redirectUri)}&scopes=${encodeURIComponent(scopes)}`;
+                    window.open(url, "_blank");
+                }
+            });
+
+            if (node.credentials.clientId) {
+                $("#node-config-input-clientId").val(node.credentials.clientId);
+            }
+            if (node.credentials.clientSecret) {
+                $("#node-config-input-clientSecret").val(node.credentials.clientSecret);
+            }
+            if (node.credentials.redirectUri) {
+                $("#node-config-input-redirectUri").val(node.credentials.redirectUri);
+            }
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="google-credentials">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-clientId"><i class="fa fa-id-badge"></i> Client ID</label>
+        <input type="password" id="node-config-input-clientId" placeholder="Your OAuth2 Client ID">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-clientSecret"><i class="fa fa-key"></i> Client Secret</label>
+        <input type="password" id="node-config-input-clientSecret" placeholder="Your OAuth2 Client Secret">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-redirectUri"><i class="fa fa-link"></i> Redirect URI</label>
+        <input type="text" id="node-config-input-redirectUri" placeholder="Redirect URI (e.g., http://localhost:1880/google-credentials/auth/callback)">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-scopes"><i class="fa fa-list"></i> Scopes</label>
+        <input type="text" id="node-config-input-scopes" placeholder="Scopes (comma-separated)" value="https://www.googleapis.com/auth/drive">
+    </div>
+    <div class="form-row">
+        <small>Use your Node-RED instance URL + <code>/google-credentials/auth/callback</code></small>
+    </div>
+    <div class="form-row">
+        <button type="button" class="btn" id="node-config-start-auth">Start Authorization</button>
+        <div id="node-config-auth-url" style="margin-top: 10px;"></div>
+    </div>
+</script>
+
+<!-- Google Drive API Node Configuration -->
+<script type="text/javascript">
+    RED.nodes.registerType('Google Drive', {
+        category: 'function',
+        color: '#F4B400',
+        icon: 'font-awesome/fa-folder-open-o',
+        defaults: {
+            name: { value: "" },
+            googleCredentials: { type: "google-credentials", required: true },
+            operation: { value: "list", required: true },
+            folderId: { value: "", type: "typedInput", required: false },
+            folderIdType: { value: "str" },
+            fileId: { value: "", type: "typedInput", required: false },
+            fileIdType: { value: "str" },
+            fileName: { value: "", type: "typedInput", required: false },
+            fileNameType: { value: "str" }
+        },
+        inputs: 1,
+        outputs: 1,
+        label: function() {
+            return this.name || 'Google Drive API';
+        },
+        oneditprepare: function() {
+            // Define operations with values and text
+            const operations = [
+                { value: "list", text: "List Files" },
+                { value: "get", text: "Get File" },
+                { value: "create", text: "Create File" },
+                { value: "update", text: "Update File" },
+                { value: "delete", text: "Delete File" }
+            ];
+
+            const fieldMapping = {
+                list: ["#node-input-folderId"],
+                get: ["#node-input-fileId"],
+                delete: ["#node-input-fileId"],
+                create: ["#node-input-folderId", "#node-input-fileName"],
+                update: ["#node-input-fileId"]
+            };
+
+            const operationSelect = $("#node-input-operation");
+
+            // Populate dropdown and initialize typed inputs
+            operations.forEach(op => operationSelect.append(new Option(op.text, op.value)));
+            ["#node-input-folderId", "#node-input-fileId", "#node-input-fileName"].forEach(id =>
+                $(id).typedInput({ types: ["msg", "flow", "global", "str"] })
+            );
+
+            function updateFieldVisibility() {
+                const selectedOperation = operationSelect.val();
+                Object.values(fieldMapping).flat().forEach(id => $(id).closest('.form-row').hide());
+                (fieldMapping[selectedOperation] || []).forEach(id => $(id).closest('.form-row').show());
+            }
+
+            operationSelect.on('change', updateFieldVisibility);
+            updateFieldVisibility(); // Initialize visibility based on the current selection
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="Google Drive">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-googleCredentials"><i class="fa fa-cog"></i> Google Credentials</label>
+        <input type="text" id="node-input-googleCredentials">
+    </div>
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-cogs"></i> Operation</label>
+        <select id="node-input-operation"></select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-folderId"><i class="fa fa-folder"></i> Folder ID</label>
+        <input type="text" id="node-input-folderId" placeholder="msg, flow, global, or string">
+    </div>
+    <div class="form-row">
+        <label for="node-input-fileId"><i class="fa fa-file"></i> File ID</label>
+        <input type="text" id="node-input-fileId" placeholder="msg, flow, global, or string">
+    </div>
+    <div class="form-row">
+        <label for="node-input-fileName"><i class="fa fa-file-text"></i> File Name</label>
+        <input type="text" id="node-input-fileName" placeholder="msg, flow, global, or string">
+    </div>
+</script>
+
+<!-- Help Information -->
+<script type="text/html" data-help-name="Google Drive">
+<p>This node interacts with Google Drive using OAuth2.</p>
+
+<h3>Inputs</h3>
+<dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>Parameters for the selected operation.</dd>
+</dl>
+
+<h3>Outputs</h3>
+<dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>Response from the Google Drive API.</dd>
+</dl>
+
+<h3>Operations</h3>
+<ul>
+    <li><b>list</b>: Lists files in a specified folder in Google Drive.</li>
+    <li><b>get</b>: Retrieves metadata or content for a specific file by ID.</li>
+    <li><b>create</b>: Creates a new file in a specified folder in Google Drive.</li>
+    <li><b>update</b>: Updates a specific file's metadata or content by ID.</li>
+    <li><b>delete</b>: Deletes a specific file from Google Drive by ID.</li>
+</ul>
+
+<h3>Details</h3>
+<p>To use this node, configure it with the appropriate Google Drive API operation you want to perform. Pass any required parameters through <code>msg.payload</code>.</p>
+
+<h3>References</h3>
+<ul>
+    <li><a href="https://developers.google.com/drive/api" target="_blank">Google Drive API Documentation</a></li>
+</ul>
+</script>
+
+<script type="text/html" data-help-name="google-credentials">
+<p>Configuration node for Google Drive OAuth2 credentials.</p>
+
+<h3>Steps</h3>
+<ol>
+    <li><b>Client ID & Client Secret</b>: Obtain these from your Google Cloud Console.</li>
+    <li><b>Redirect URI</b>: Set this to a URL Node-RED can handle (e.g., <code>http://localhost:1880/google-credentials/auth/callback</code>).</li>
+    <li><b>Generate Auth URL</b>: Click the button to generate the authorization URL. Follow the URL to authorize the application.</li>
+</ol>
+
+<p>After authorization, the node will handle the OAuth2 flow.</p>
+</script>
