@@ -1,6 +1,6 @@
 # Node-RED Google Drive Integration
 
-This [Node-RED](https://flows.nodered.org/node/@lexiraeanna/node-red-contrib-google-drive) module provides nodes to interact with Google Drive using OAuth2.
+This Node-RED module provides nodes to interact with Google Drive using OAuth2.
 
 ## Installation
 

@@ -1,6 +1,6 @@
 {
   "name": "@lexiraeanna/node-red-contrib-google-drive",
-  "version": "1.1.1",
+  "version": "1.0.0",
   "description": "A Node-RED node to interact with Google Drive using OAuth2",
   "main": "google-drive.js",
   "dependencies": {
@@ -19,10 +19,6 @@
       "google-credentials": "google-credentials.js",
       "Google Drive": "google-drive.js"
     }
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lexiraeanna/-lexiraeanna-node-red-contrib-google-drive.git"
   },
   "author": "Lexi Love",
   "license": "MIT"

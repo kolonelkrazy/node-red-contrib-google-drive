@@ -20,8 +20,7 @@ module.exports = function (RED) {
         console.log(`[google-drive] Google Drive node initialized with ID: ${this.id}`);
 
         node.on('input', async function (msg, send, done) {
-            // Preserve and prioritize operation from message
-            const operation = msg.operation || config.operation;
+            const operation = config.operation || msg.operation;
             const params = msg.payload || {};
 
             // Resolve dynamic folderId, fileId, and fileName
@@ -90,7 +89,7 @@ module.exports = function (RED) {
                         result = await drive.files.delete({ fileId: params.fileId });
                         break;
                     default:
-                        throw new Error(`[google-drive] Invalid operation: ${operation}`);
+                        throw new Error('[google-drive] Invalid operation');
                 }
 
                 msg.payload = result.data;
