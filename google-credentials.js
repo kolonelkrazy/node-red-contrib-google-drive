@@ -84,6 +84,11 @@ module.exports = function (RED) {
         const csrfToken = crypto.randomBytes(18).toString('base64').replace(/\//g, '-').replace(/\+/g, '_');
         credentials.csrfToken = csrfToken;
         res.cookie('csrf', csrfToken);
+
+        // Extract dynamic base URL
+        const parsedUrl = url.parse(callback);
+        const basePath = parsedUrl.protocol + '//' + parsedUrl.host;
+
         res.redirect(url.format({
             protocol: 'https',
             hostname: 'accounts.google.com',
@@ -94,7 +99,7 @@ module.exports = function (RED) {
                 scope: scopes,
                 response_type: 'code',
                 client_id: credentials.clientId,
-                redirect_uri: callback,
+                redirect_uri: basePath + '/google-credentials/auth/callback',
                 state: node_id + ":" + csrfToken,
             }
         }));
@@ -121,16 +126,20 @@ module.exports = function (RED) {
             return res.status(401).send("CSRF token mismatch");
         }
 
+        // Extract dynamic base URL
+        const parsedUrl = url.parse(credentials.callback);
+        const basePath = parsedUrl.protocol + '//' + parsedUrl.host;
+
         const oauth2Client = new OAuth2Client(
             credentials.clientId,
             credentials.clientSecret,
-            credentials.callback
+            basePath + '/google-credentials/auth/callback'
         );
 
         try {
             const { tokens } = await oauth2Client.getToken({
                 code: req.query.code,
-                redirect_uri: credentials.callback
+                redirect_uri: basePath + '/google-credentials/auth/callback'
             });
 
             credentials.accessToken = tokens.access_token;
