@@ -20,6 +20,10 @@
       "Google Drive": "google-drive.js"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lexiraeanna/-lexiraeanna-node-red-contrib-google-drive.git"
+  },
   "author": "Lexi Love",
   "license": "MIT"
 }
