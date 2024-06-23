@@ -125,13 +125,18 @@
                 get: ["#node-input-fileId"],
                 delete: ["#node-input-fileId"],
                 create: ["#node-input-folderId", "#node-input-fileName"],
-                update: ["#node-input-fileId"]
+                update: ["#node-input-fileId", "#node-input-fileName"]
             };
 
             const operationSelect = $("#node-input-operation");
 
             // Populate dropdown and initialize typed inputs
             operations.forEach(op => operationSelect.append(new Option(op.text, op.value)));
+
+            // Load saved operation
+            const selectedOperation = this.operation || "list";
+            operationSelect.val(selectedOperation);
+
             ["#node-input-folderId", "#node-input-fileId", "#node-input-fileName"].forEach(id =>
                 $(id).typedInput({ types: ["msg", "flow", "global", "str"] })
             );
@@ -144,6 +149,10 @@
 
             operationSelect.on('change', updateFieldVisibility);
             updateFieldVisibility(); // Initialize visibility based on the current selection
+        },
+        oneditsave: function() {
+            // Save selected operation
+            this.operation = $("#node-input-operation").val();
         }
     });
 </script>
@@ -161,19 +170,20 @@
         <label for="node-input-operation"><i class="fa fa-cogs"></i> Operation</label>
         <select id="node-input-operation"></select>
     </div>
-    <div class="form-row">
+    <div class="form-row" style="display: none;">
         <label for="node-input-folderId"><i class="fa fa-folder"></i> Folder ID</label>
         <input type="text" id="node-input-folderId" placeholder="msg, flow, global, or string">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="display: none;">
         <label for="node-input-fileId"><i class="fa fa-file"></i> File ID</label>
         <input type="text" id="node-input-fileId" placeholder="msg, flow, global, or string">
     </div>
-    <div class="form-row">
+    <div class="form-row" style="display: none;">
         <label for="node-input-fileName"><i class="fa fa-file-text"></i> File Name</label>
         <input type="text" id="node-input-fileName" placeholder="msg, flow, global, or string">
     </div>
 </script>
+
 
 <!-- Help Information -->
 <script type="text/html" data-help-name="Google Drive">
