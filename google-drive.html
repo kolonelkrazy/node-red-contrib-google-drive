@@ -137,19 +137,9 @@
             const selectedOperation = this.operation || "list";
             operationSelect.val(selectedOperation);
 
-            // Restore typed inputs with types and values
-            const restoreTypedInput = (id, type, value) => {
-                $(id).typedInput({
-                    types: ["msg", "flow", "global", "str"],
-                    defaultType: type
-                });
-                $(id).typedInput('type', type);
-                $(id).typedInput('value', value);
-            };
-
-            restoreTypedInput("#node-input-folderId", this.folderIdType, this.folderId);
-            restoreTypedInput("#node-input-fileId", this.fileIdType, this.fileId);
-            restoreTypedInput("#node-input-fileName", this.fileNameType, this.fileName);
+            ["#node-input-folderId", "#node-input-fileId", "#node-input-fileName"].forEach(id =>
+                $(id).typedInput({ types: ["msg", "flow", "global", "str"] })
+            );
 
             function updateFieldVisibility() {
                 const selectedOperation = operationSelect.val();
@@ -163,14 +153,6 @@
         oneditsave: function() {
             // Save selected operation
             this.operation = $("#node-input-operation").val();
-
-            // Save typed input types and values
-            this.folderIdType = $("#node-input-folderId").typedInput('type');
-            this.folderId = $("#node-input-folderId").typedInput('value');
-            this.fileIdType = $("#node-input-fileId").typedInput('type');
-            this.fileId = $("#node-input-fileId").typedInput('value');
-            this.fileNameType = $("#node-input-fileName").typedInput('type');
-            this.fileName = $("#node-input-fileName").typedInput('value');
         }
     });
 </script>
