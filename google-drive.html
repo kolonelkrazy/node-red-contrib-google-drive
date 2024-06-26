@@ -1,109 +1,115 @@
 <!-- Google Credentials Config Node Configuration -->
-<script type="text/javascript">
+<script type='text/javascript'>
     RED.nodes.registerType('google-credentials', {
         category: 'config',
         defaults: {
-            name: { value: "" },
-            clientId: { value: "", required: true },
-            clientSecret: { value: "", required: true },
-            redirectUri: { value: "", required: true },
-            scopes: { value: "https://www.googleapis.com/auth/drive" }
+            name: { value: '' },
+            clientId: { value: '', required: true },
+            clientSecret: { value: '', required: true },
+            redirectUri: { value: '', required: true },
+            scopes: { value: 'https://www.googleapis.com/auth/drive' }
         },
         credentials: {
-            clientId: { type: "password" },
-            clientSecret: { type: "password" }
+            clientId: { type: 'password' },
+            clientSecret: { type: 'password' }
         },
         label: function() {
-            return this.name || "Google API Credentials";
+            return this.name || 'Google API Credentials';
         },
         oneditprepare: function() {
             const node = this;
 
             function updateAuthButton() {
-                const clientId = $("#node-config-input-clientId").val();
-                const clientSecret = $("#node-config-input-clientSecret").val();
-                const redirectUri = $("#node-config-input-redirectUri").val();
-                $("#node-config-start-auth").toggleClass("disabled", !clientId || !clientSecret || !redirectUri);
+                const clientId = $('#node-config-input-clientId').val();
+                const clientSecret = $('#node-config-input-clientSecret').val();
+                const redirectUri = $('#node-config-input-redirectUri').val();
+                $('#node-config-start-auth').toggleClass('disabled', !clientId || !clientSecret || !redirectUri);
             }
 
-            $("#node-config-input-clientId").on('input', updateAuthButton);
-            $("#node-config-input-clientSecret").on('input', updateAuthButton);
-            $("#node-config-input-redirectUri").on('input', updateAuthButton);
+            $('#node-config-input-clientId').on('input', updateAuthButton);
+            $('#node-config-input-clientSecret').on('input', updateAuthButton);
+            $('#node-config-input-redirectUri').on('input', updateAuthButton);
 
             updateAuthButton();
 
-            $("#node-config-start-auth").click(function () {
-                const clientId = $("#node-config-input-clientId").val();
-                const clientSecret = $("#node-config-input-clientSecret").val();
-                const redirectUri = $("#node-config-input-redirectUri").val();
+            $('#node-config-start-auth').click(function () {
+                const clientId = $('#node-config-input-clientId').val();
+                const clientSecret = $('#node-config-input-clientSecret').val();
+                const redirectUri = $('#node-config-input-redirectUri').val();
                 const state = node.id;
-                const scopes = $("#node-config-input-scopes").val();
+                const scopes = $('#node-config-input-scopes').val();
 
                 if (clientId && clientSecret && redirectUri) {
                     const url = `/google-credentials/auth?id=${state}&clientId=${encodeURIComponent(clientId)}&clientSecret=${encodeURIComponent(clientSecret)}&callback=${encodeURIComponent(redirectUri)}&scopes=${encodeURIComponent(scopes)}`;
-                    window.open(url, "_blank");
+                    window.open(url, '_blank');
                 }
             });
 
             if (node.credentials.clientId) {
-                $("#node-config-input-clientId").val(node.credentials.clientId);
+                $('#node-config-input-clientId').val(node.credentials.clientId);
             }
             if (node.credentials.clientSecret) {
-                $("#node-config-input-clientSecret").val(node.credentials.clientSecret);
+                $('#node-config-input-clientSecret').val(node.credentials.clientSecret);
             }
             if (node.credentials.redirectUri) {
-                $("#node-config-input-redirectUri").val(node.credentials.redirectUri);
+                $('#node-config-input-redirectUri').val(node.credentials.redirectUri);
             }
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="google-credentials">
-    <div class="form-row">
-        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-config-input-name" placeholder="Name">
+<script type='text/x-red' data-template-name='google-credentials'>
+    <div class='form-row'>
+        <label for='node-config-input-name'><i class='fa fa-tag'></i> Name</label>
+        <input type='text' id='node-config-input-name' placeholder='Name'>
     </div>
-    <div class="form-row">
-        <label for="node-config-input-clientId"><i class="fa fa-id-badge"></i> Client ID</label>
-        <input type="password" id="node-config-input-clientId" placeholder="Your OAuth2 Client ID">
+    <div class='form-row'>
+        <label for='node-config-input-clientId'><i class='fa fa-id-badge'></i> Client ID</label>
+        <input type='password' id='node-config-input-clientId' placeholder='Your OAuth2 Client ID'>
     </div>
-    <div class="form-row">
-        <label for="node-config-input-clientSecret"><i class="fa fa-key"></i> Client Secret</label>
-        <input type="password" id="node-config-input-clientSecret" placeholder="Your OAuth2 Client Secret">
+    <div class='form-row'>
+        <label for='node-config-input-clientSecret'><i class='fa fa-key'></i> Client Secret</label>
+        <input type='password' id='node-config-input-clientSecret' placeholder='Your OAuth2 Client Secret'>
     </div>
-    <div class="form-row">
-        <label for="node-config-input-redirectUri"><i class="fa fa-link"></i> Redirect URI</label>
-        <input type="text" id="node-config-input-redirectUri" placeholder="Redirect URI (e.g., http://localhost:1880/google-credentials/auth/callback)">
+    <div class='form-row'>
+        <label for='node-config-input-redirectUri'><i class='fa fa-link'></i> Redirect URI</label>
+        <input type='text' id='node-config-input-redirectUri' placeholder='Redirect URI (e.g., http://localhost:1880/google-credentials/auth/callback)'>
     </div>
-    <div class="form-row">
-        <label for="node-config-input-scopes"><i class="fa fa-list"></i> Scopes</label>
-        <input type="text" id="node-config-input-scopes" placeholder="Scopes (comma-separated)" value="https://www.googleapis.com/auth/drive">
+    <div class='form-row'>
+        <label for='node-config-input-scopes'><i class='fa fa-list'></i> Scopes</label>
+        <input type='text' id='node-config-input-scopes' placeholder='Scopes (comma-separated)' value='https://www.googleapis.com/auth/drive'>
     </div>
-    <div class="form-row">
+    <div class='form-row'>
         <small>Use your Node-RED instance URL + <code>/google-credentials/auth/callback</code></small>
     </div>
-    <div class="form-row">
-        <button type="button" class="btn" id="node-config-start-auth">Start Authorization</button>
-        <div id="node-config-auth-url" style="margin-top: 10px;"></div>
+    <div class='form-row'>
+        <button type='button' class='btn' id='node-config-start-auth'>Start Authorization</button>
+        <div id='node-config-auth-url' style='margin-top: 10px;'></div>
     </div>
 </script>
 
 <!-- Google Drive API Node Configuration -->
-<script type="text/javascript">
+<script type='text/javascript'>
     RED.nodes.registerType('Google Drive', {
         category: 'function',
         color: '#F4B400',
         icon: 'font-awesome/fa-folder-open-o',
         defaults: {
-            name: { value: "" },
-            googleCredentials: { type: "google-credentials", required: true },
-            operation: { value: "list", required: true },
-            folderId: { value: "", type: "typedInput", required: false },
-            folderIdType: { value: "str" },
-            fileId: { value: "", type: "typedInput", required: false },
-            fileIdType: { value: "str" },
-            fileName: { value: "", type: "typedInput", required: false },
-            fileNameType: { value: "str" }
+            name: { value: '' },
+            googleCredentials: { type: 'google-credentials', required: true },
+            operation: { value: 'list', required: true },
+            folderId: { value: '', type: 'typedInput', required: false },
+            folderIdType: { value: 'str' },
+            fileId: { value: '', type: 'typedInput', required: false },
+            fileIdType: { value: 'str' },
+            fileName: { value: '', type: 'typedInput', required: false },
+            fileNameType: { value: 'str' },
+            content: { value: '', required: false },
+            contentType: { value: 'str' },
+            metadata: { value: '', required: false },
+            metadataType: { value: 'str' },
+            uploadType: { value: '', type: 'str', required: false },
+            uploadTypeType: { value: 'str' }
         },
         inputs: 1,
         outputs: 1,
@@ -111,45 +117,65 @@
             return this.name || 'Google Drive API';
         },
         oneditprepare: function() {
-            // Define operations with values and text
+            const node = this;
+
             const operations = [
-                { value: "list", text: "List Files" },
-                { value: "get", text: "Get File" },
-                { value: "create", text: "Create File" },
-                { value: "update", text: "Update File" },
-                { value: "delete", text: "Delete File" }
+                { value: 'list', text: 'List Files' },
+                { value: 'get', text: 'Get File' },
+                { value: 'export', text: 'Export File' },
+                { value: 'create', text: 'Create File' },
+                { value: 'update', text: 'Update File' },
+                { value: 'delete', text: 'Delete File' },
+        // TODO:{ value: 'watch', text: 'Watch File' }
             ];
 
             const fieldMapping = {
-                list: ["#node-input-folderId"],
-                get: ["#node-input-fileId"],
-                delete: ["#node-input-fileId"],
-                create: ["#node-input-folderId", "#node-input-fileName"],
-                update: ["#node-input-fileId", "#node-input-fileName"]
+                list: ['#node-input-folderId'],
+                get: ['#node-input-fileId'],
+                export: ['#node-input-fileId', '#node-input-mimeType'],
+                delete: ['#node-input-fileId'],
+                create: ['#node-input-folderId', '#node-input-fileName', '#node-input-content'],
+                update: ['#node-input-fileId', '#node-input-uploadType', '#node-input-content', '#node-input-metadata'],
+                watch: ['#node-input-fileId']
             };
 
-            const operationSelect = $("#node-input-operation");
-
-            // Populate dropdown and initialize typed inputs
+            const operationSelect = $('#node-input-operation');
             operations.forEach(op => operationSelect.append(new Option(op.text, op.value)));
 
-            // Load saved operation
-            const selectedOperation = this.operation || "list";
+            const selectedOperation = this.operation || 'list';
             operationSelect.val(selectedOperation);
 
-            // Restore typed inputs with types and values
             const restoreTypedInput = (id, type, value) => {
-                $(id).typedInput({
-                    types: ["msg", "flow", "global", "str"],
-                    defaultType: type
-                });
-                $(id).typedInput('type', type);
-                $(id).typedInput('value', value);
+                console.log(`Restoring typedInput for ${id} with type ${type} and value ${value}`);
+                try {
+                    $(id).typedInput({
+                        types: ['msg', 'flow', 'global', 'str', 'json'],
+                        defaultType: type
+                    }).typedInput('type', type).typedInput('value', value);
+                } catch (error) {
+                    console.error(`Error restoring typed input for ${id}: ${error.message}`);
+                }
             };
 
-            restoreTypedInput("#node-input-folderId", this.folderIdType, this.folderId);
-            restoreTypedInput("#node-input-fileId", this.fileIdType, this.fileId);
-            restoreTypedInput("#node-input-fileName", this.fileNameType, this.fileName);
+            restoreTypedInput('#node-input-folderId', this.folderIdType, this.folderId);
+            restoreTypedInput('#node-input-fileId', this.fileIdType, this.fileId);
+            restoreTypedInput('#node-input-fileName', this.fileNameType, this.fileName);
+
+            const uploadTypeSelect = $('<select id="node-input-uploadType"><option value="media">Media</option><option value="multipart">Multipart</option></select>');
+            $('#node-input-uploadType').replaceWith(uploadTypeSelect);
+            uploadTypeSelect.val(this.uploadType);
+
+            const contentField = $('<textarea id="node-input-content" placeholder="content" style="height: 200px;"></textarea>');
+            $('#node-input-content').replaceWith(contentField);
+            contentField.val(this.content);
+
+            const metadataField = $('<textarea id="node-input-metadata" placeholder="metadata" style="height: 200px;"></textarea>');
+            $('#node-input-metadata').replaceWith(metadataField);
+            metadataField.val(this.metadata);
+
+            const mimeTypeField = $('<input type="text" id="node-input-mimeType" placeholder="MIME Type">');
+            $('#node-input-mimeType').replaceWith(mimeTypeField);
+            mimeTypeField.val(this.mimeType);
 
             function updateFieldVisibility() {
                 const selectedOperation = operationSelect.val();
@@ -157,65 +183,126 @@
                 (fieldMapping[selectedOperation] || []).forEach(id => $(id).closest('.form-row').show());
             }
 
-            operationSelect.on('change', updateFieldVisibility);
-            updateFieldVisibility(); // Initialize visibility based on the current selection
+            operationSelect.on('change', function() {
+                console.log(`Operation changed to ${operationSelect.val()}`);
+                updateFieldVisibility();
+            });
+
+            updateFieldVisibility();
+
+            uploadTypeSelect.on('change', function() {
+                const uploadType = $(this).val();
+                if (uploadType === 'media') {
+                    contentField.attr('rows', 2);
+                    metadataField.closest('.form-row').hide();
+                } else {
+                    contentField.attr('rows', 10);
+                    metadataField.closest('.form-row').show();
+                }
+            });
+
+            const getFileContentButton = $('<button id="get-file-content" type="button" class="btn">Get File Content</button>');
+            $('#node-input-fileId').after(getFileContentButton);
+
+            function updateFileContentButton() {
+                const fileId = $('#node-input-fileId').typedInput('value');
+                $('#get-file-content').toggleClass('disabled', !fileId);
+            }
+
+            $('#node-input-fileId').on('input change', updateFileContentButton);
+            updateFileContentButton();
+
+            getFileContentButton.click(async function() {
+                const fileId = $('#node-input-fileId').typedInput('value');
+                if (!fileId) {
+                    alert('ERROR: No file ID found.');
+                    return;
+                }
+
+                const credentialsId = node.googleCredentials;
+                const uploadType = uploadTypeSelect.val();
+
+                try {
+                    const contentResponse = await $.get(`/google-drive/fetch-file-content?fileId=${fileId}&credentialsId=${credentialsId}`);
+                    alert(`File Content: ${contentResponse.fileContent}`);
+                } catch (error) {
+                    alert(`Error fetching file content: ${error.message}`);
+                }
+            });
         },
         oneditsave: function() {
-            // Save selected operation
-            this.operation = $("#node-input-operation").val();
-
-            // Save typed input types and values
-            this.folderIdType = $("#node-input-folderId").typedInput('type');
-            this.folderId = $("#node-input-folderId").typedInput('value');
-            this.fileIdType = $("#node-input-fileId").typedInput('type');
-            this.fileId = $("#node-input-fileId").typedInput('value');
-            this.fileNameType = $("#node-input-fileName").typedInput('type');
-            this.fileName = $("#node-input-fileName").typedInput('value');
+            this.operation = $('#node-input-operation').val();
+            this.folderIdType = $('#node-input-folderId').typedInput('type');
+            this.folderId = $('#node-input-folderId').typedInput('value');
+            this.fileIdType = $('#node-input-fileId').typedInput('type');
+            this.fileId = $('#node-input-fileId').typedInput('value');
+            this.fileNameType = $('#node-input-fileName').typedInput('type');
+            this.fileName = $('#node-input-fileName').typedInput('value');
+            this.content = $('#node-input-content').val();
+            this.metadataType = $('#node-input-metadata').typedInput('type');
+            this.metadata = $('#node-input-metadata').val();
+            this.uploadType = $('#node-input-uploadType').val();
+            this.mimeType = $('#node-input-mimeType').val();
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="Google Drive">
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+<script type='text/x-red' data-template-name='Google Drive'>
+    <div class='form-row'>
+        <label for='node-input-name'><i class='fa fa-tag'></i> Name</label>
+        <input type='text' id='node-input-name' placeholder='Name'>
     </div>
-    <div class="form-row">
-        <label for="node-input-googleCredentials"><i class="fa fa-cog"></i> Google Credentials</label>
-        <input type="text" id="node-input-googleCredentials">
+    <div class='form-row'>
+        <label for='node-input-googleCredentials'><i class='fa fa-cog'></i> Google Credentials</label>
+        <input type='text' id='node-input-googleCredentials'>
     </div>
-    <div class="form-row">
-        <label for="node-input-operation"><i class="fa fa-cogs"></i> Operation</label>
-        <select id="node-input-operation"></select>
+    <div class='form-row'>
+        <label for='node-input-operation'><i class='fa fa-cogs'></i> Operation</label>
+        <select id='node-input-operation'></select>
     </div>
-    <div class="form-row" style="display: none;">
-        <label for="node-input-folderId"><i class="fa fa-folder"></i> Folder ID</label>
-        <input type="text" id="node-input-folderId" placeholder="folderId">
+    <div class='form-row' style='display: none;'>
+        <label for='node-input-folderId'><i class='fa fa-folder'></i> Folder ID</label>
+        <input type='text' id='node-input-folderId' placeholder='folderId'>
     </div>
-    <div class="form-row" style="display: none;">
-        <label for="node-input-fileId"><i class="fa fa-file"></i> File ID</label>
-        <input type="text" id="node-input-fileId" placeholder="fileId">
+    <div class='form-row' style='display: none;'>
+        <label for='node-input-fileId'><i class='fa fa-file'></i> File ID</label>
+        <input type='text' id='node-input-fileId' placeholder='fileId'>
     </div>
-    <div class="form-row" style="display: none;">
-        <label for="node-input-fileName"><i class="fa fa-file-text"></i> File Name</label>
-        <input type="text" id="node-input-fileName" placeholder="fileName">
+    <div class='form-row' style='display: none;'>
+        <label for='node-input-uploadType'><i class='fa fa-upload'></i> Upload Type</label>
+        <select id='node-input-uploadType'>
+            <option value='media'>Media</option>
+            <option value='multipart'>Multipart</option>
+        </select>
+    </div>
+    <div class='form-row' style='display: none;'>
+        <label for='node-input-fileName'><i class='fa fa-file-text'></i> File Name</label>
+        <input type='text' id='node-input-fileName' placeholder='fileName'>
+    </div>
+    <div class='form-row' style='display: none;'>
+        <label for='node-input-content'><i class='fa fa-file-text'></i> Content</label>
+        <textarea id='node-input-content' placeholder='content' style='height: 200px;'></textarea>
+    </div>
+    <div class='form-row' style='display: none;'>
+        <label for='node-input-metadata'><i class='fa fa-file-text'></i> Metadata</label>
+        <textarea id='node-input-metadata' placeholder='metadata' style='height: 200px;'></textarea>
     </div>
 </script>
 
 
-<!-- Help Information -->
-<script type="text/html" data-help-name="Google Drive">
+
+<script type='text/html' data-help-name='Google Drive'>
 <p>This node interacts with Google Drive using OAuth2.</p>
 
 <h3>Inputs</h3>
-<dl class="message-properties">
-    <dt>payload <span class="property-type">object</span></dt>
+<dl class='message-properties'>
+    <dt>payload <span class='property-type'>object</span></dt>
     <dd>Parameters for the selected operation.</dd>
 </dl>
 
 <h3>Outputs</h3>
-<dl class="message-properties">
-    <dt>payload <span class="property-type">object</span></dt>
+<dl class='message-properties'>
+    <dt>payload <span class='property-type'>object</span></dt>
     <dd>Response from the Google Drive API.</dd>
 </dl>
 
@@ -226,6 +313,7 @@
     <li><b>create</b>: Creates a new file in a specified folder in Google Drive.</li>
     <li><b>update</b>: Updates a specific file's metadata or content by ID.</li>
     <li><b>delete</b>: Deletes a specific file from Google Drive by ID.</li>
+    <li><b>watch</b>: Watches a specific file for changes by ID.</li>
 </ul>
 
 <h3>Details</h3>
@@ -233,11 +321,11 @@
 
 <h3>References</h3>
 <ul>
-    <li><a href="https://developers.google.com/drive/api" target="_blank">Google Drive API Documentation</a></li>
+    <li><a href='https://developers.google.com/drive/api' target='_blank'>Google Drive API Documentation</a></li>
 </ul>
 </script>
 
-<script type="text/html" data-help-name="google-credentials">
+<script type='text/html' data-help-name='google-credentials'>
 <p>Configuration node for Google Drive OAuth2 credentials.</p>
 
 <h3>Steps</h3>
