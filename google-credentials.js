@@ -15,15 +15,12 @@ module.exports = function (RED) {
 
         console.log(`[google-credentials] Initializing node with ID: ${this.id}`);
 
-        // Convert scopes to array if it's a string
         if (typeof this.scopes === 'string') {
             this.scopes = this.scopes.split(',');
         }
 
-        // Initialize OAuth2Client instance
         this.oauth2Client = new OAuth2Client(this.clientId, this.clientSecret, this.redirectUri);
 
-        // Method to get OAuth2 client instance, handling token refresh
         this.getClient = async function () {
             const credentials = RED.nodes.getCredentials(this.id);
             if (!credentials || !credentials.accessToken || !credentials.refreshToken) {
@@ -38,19 +35,14 @@ module.exports = function (RED) {
                 refresh_token: credentials.refreshToken,
             });
 
-            // Check if access token needs to be refreshed
             if (credentials.expiryDate && Date.now() > credentials.expiryDate) {
                 try {
                     console.log('[google-credentials] Refreshing access token...');
-                    const tokens = await this.oauth2Client.getAccessToken();
-                    credentials.accessToken = tokens.token;
+                    const { credentials: newTokens } = await this.oauth2Client.refreshAccessToken();
 
-                    // Update expiry date if available in the token response
-                    if (tokens.res && tokens.res.data && tokens.res.data.expiry_date) {
-                        credentials.expiryDate = tokens.res.data.expiry_date;
-                    } else {
-                        console.warn('[google-credentials] No valid expiry date found in the token response.');
-                    }
+                    credentials.accessToken = newTokens.access_token;
+                    credentials.refreshToken = newTokens.refresh_token || credentials.refreshToken;
+                    credentials.expiryDate = newTokens.expiry_date;
 
                     RED.nodes.addCredentials(this.id, credentials);
                     this.oauth2Client.setCredentials(credentials);
@@ -58,11 +50,26 @@ module.exports = function (RED) {
                     const errorMessage = `Error refreshing access token: ${err.message}`;
                     this.error(errorMessage);
                     console.error(`[google-credentials] ${errorMessage}`);
+                    return null;
                 }
             }
 
             return this.oauth2Client;
         };
+
+        // Refresh tokens on startup
+        (async () => {
+            try {
+                const client = await this.getClient();
+                if (client) {
+                    console.log(`[google-credentials] Tokens are valid for node ID: ${this.id}`);
+                } else {
+                    console.log(`[google-credentials] Tokens are missing or invalid for node ID: ${this.id}`);
+                }
+            } catch (err) {
+                console.error(`[google-credentials] Error checking tokens on startup: ${err.message}`);
+            }
+        })();
     }
 
     RED.httpAdmin.get('/google-credentials/auth', function (req, res) {
@@ -134,7 +141,7 @@ module.exports = function (RED) {
             });
 
             credentials.accessToken = tokens.access_token;
-            credentials.refreshToken = tokens.refresh_token;
+            credentials.refreshToken = tokens.refresh_token || credentials.refreshToken;
             credentials.expiryDate = tokens.expiry_date;
             credentials.tokenType = tokens.token_type;
 
