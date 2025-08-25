@@ -28,6 +28,5 @@ coverage/
 *.lcov
 tmp/
 temp/
-.cleanroom/
 .devcontainer.json
 *.local
