@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+#    ignore:
+#      - dependency-name: "google-auth-library"
+#        update-types: ["version-update:semver-major"]
+#      - dependency-name: "googleapis"
+#        update-types: ["version-update:semver-major"]

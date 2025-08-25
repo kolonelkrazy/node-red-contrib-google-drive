@@ -43,6 +43,8 @@ module.exports = {
                     value = process.env[property];
                     break;
                 case 'str':
+                    value = property;
+                    break;
                 case 'json':
                     value = property;
                     break;

@@ -1,20 +1,22 @@
 {
-  "name": "@lexiraeanna/node-red-contrib-google-drive",
-  "version": "2.0.0",
+  "name": "node-red-contrib-google-drive",
+  "version": "2.1.1",
   "description": "A Node-RED node to interact with Google Drive using OAuth2",
   "main": "google-drive.js",
   "dependencies": {
-    "google-auth-library": "^9.2.0",
-    "googleapis": "^122.0.0",
-    "mime-types": "^2.1.35",
-    "pdfjs-dist": "^3.11.174",
-    "xlsx": "^0.18.5"
+    "google-auth-library": "^10.2.1",
+    "googleapis": "^157.0.0",
+    "mime-types": "^3.0.1"
   },
   "keywords": [
     "node-red",
     "google",
     "drive",
-    "oauth2"
+    "oauth2",
+    "google-drive",
+    "api",
+    "cloud",
+    "files"
   ],
   "node-red": {
     "nodes": {
@@ -22,10 +24,14 @@
       "Google Drive": "google-drive.js"
     }
   },
-  "author": "Lexi Love",
+  "author": "kolonelkrazy",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lexiraeanna/-lexiraeanna-node-red-contrib-google-drive"
-  }
+    "url": "https://github.com/kolonelkrazy/node-red-contrib-google-drive"
+  },
+  "bugs": {
+    "url": "https://github.com/kolonelkrazy/node-red-contrib-google-drive/issues"
+  },
+  "homepage": "https://github.com/kolonelkrazy/node-red-contrib-google-drive#readme"
 }

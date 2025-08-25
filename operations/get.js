@@ -26,7 +26,7 @@ module.exports = async function (drive, fileId, msg, send, done) {
             if (!msg.payload) {
                 msg.payload = {};
             }
-            msg.payload.content = Buffer.concat(chunks).toString();
+            msg.payload.content = Buffer.concat(chunks);
             send(msg);
             done();
         });

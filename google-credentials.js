@@ -35,19 +35,43 @@ module.exports = function (RED) {
                 refresh_token: credentials.refreshToken,
             });
 
-            if (credentials.expiryDate && Date.now() > credentials.expiryDate) {
+            const bufferTime = 5 * 60 * 1000;
+            if (credentials.expiryDate && Date.now() > (credentials.expiryDate - bufferTime)) {
                 try {
                     console.log('[google-credentials] Refreshing access token...');
                     const { credentials: newTokens } = await this.oauth2Client.refreshAccessToken();
 
+                    if (!newTokens.access_token) {
+                        throw new Error('No access token received from refresh');
+                    }
+
                     credentials.accessToken = newTokens.access_token;
-                    credentials.refreshToken = newTokens.refresh_token || credentials.refreshToken;
+                    if (newTokens.refresh_token) {
+                        credentials.refreshToken = newTokens.refresh_token;
+                    }
                     credentials.expiryDate = newTokens.expiry_date;
 
                     RED.nodes.addCredentials(this.id, credentials);
-                    this.oauth2Client.setCredentials(credentials);
+                    
+                    this.oauth2Client.setCredentials({
+                        access_token: credentials.accessToken,
+                        refresh_token: credentials.refreshToken,
+                        expiry_date: credentials.expiryDate
+                    });
+
+                    console.log('[google-credentials] Token refresh successful');
                 } catch (err) {
-                    const errorMessage = `Error refreshing access token: ${err.message}`;
+                    let errorMessage = `Error refreshing access token: ${err.message}`;
+                    
+                    if (err.response && err.response.data) {
+                        console.error(`[google-credentials] OAuth error details:`, err.response.data);
+                        errorMessage += ` - Details: ${JSON.stringify(err.response.data)}`;
+                    }
+                    if (err.code) {
+                        console.error(`[google-credentials] OAuth error code: ${err.code}`);
+                        errorMessage += ` - Code: ${err.code}`;
+                    }
+                    
                     this.error(errorMessage);
                     console.error(`[google-credentials] ${errorMessage}`);
                     return null;
@@ -97,7 +121,7 @@ module.exports = function (RED) {
             pathname: '/o/oauth2/v2/auth',
             query: {
                 access_type: 'offline',
-                approval_prompt: 'force',
+                prompt: 'consent',
                 scope: scopes,
                 response_type: 'code',
                 client_id: credentials.clientId,

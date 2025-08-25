@@ -2,13 +2,41 @@
 
 This Node-RED module provides nodes to interact with Google Drive using OAuth2.
 
+Originally written by @lexiraeanna here https://github.com/lexiraeanna/-lexiraeanna-node-red-contrib-google-drive
+
+I fixed a couple brokens things, updated the dependencies and automated some of it's maitenance. If the original author wishes to re-maintain this please open an issue in the repo and we can transfew ownership back. I made this fork and additions to continue it's ongoing opensource life.
+
 ## Installation
 
-To install, use the following command in your Node-RED directory:
-
-```sh
-npm install @lexiraeanna/node-red-contrib-google-drive
+## 0. Create Tarball
+```bash
+npm pack
 ```
+
+## 2. Install in NodeRed
+
+### Method 1: Via Node-RED UI (Recommended)
+1. Open Node-RED in your browser
+2. Go to the hamburger menu (☰) → **Manage palette**
+3. Click the **Install** tab
+4. Click **Upload** (or look for file upload option)
+5. Select your `gdrive-2.0.0.tgz` file
+6. Click **Install**
+7. Restart Node-RED to load the updated node
+
+### Method 2: Via Command Line
+```bash
+cd ~/.node-red
+npm install /path/to/gdrive-2.0.0.tgz
+```
+
+### Method 3: Copy to Node-RED directory
+```bash
+cp gdrive-2.0.0.tgz ~/.node-red/
+cd ~/.node-red
+npm install gdrive-2.0.0.tgz
+```
+
 ## Setup
 
 ### Google API Credentials Configuration

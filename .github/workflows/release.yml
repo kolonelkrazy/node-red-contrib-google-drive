@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Configure git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+    - name: Get current version
+      run: |
+        echo "CURRENT_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+        
+    - name: Get commit messages since last release
+      run: |
+        # Get the latest tag, fallback to first commit if no tags
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
+        
+        # Get commit messages since last tag/first commit
+        COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s" --no-merges)
+        
+        # Save to environment variable for use in release body
+        echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
+        echo "$COMMITS" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+        
+    - name: Create tarball
+      run: npm pack
+      
+    - name: Create and push tag
+      run: |
+        git tag "v${{ env.CURRENT_VERSION }}"
+        git push origin "v${{ env.CURRENT_VERSION }}"
+        
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ env.CURRENT_VERSION }}
+        name: Release v${{ env.CURRENT_VERSION }}
+        body: |
+          ## Changes
+          ${{ env.COMMIT_MESSAGES }}
+          
+          ## Installation
+          Download the tarball and install in Node-RED:
+          ```bash
+          npm install node-red-contrib-google-drive-${{ env.CURRENT_VERSION }}.tgz
+          ```
+        files: node-red-contrib-google-drive-${{ env.CURRENT_VERSION }}.tgz
+        draft: false
+        prerelease: false
