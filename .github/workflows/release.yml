@@ -1,4 +1,4 @@
-name: Release
+name: Release and Publish
 
 on:
   workflow_dispatch:
@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     
     steps:
     - uses: actions/checkout@v4
@@ -29,8 +31,11 @@ jobs:
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         
     - name: Get current version
+      id: version
       run: |
-        echo "CURRENT_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+        VERSION=$(node -p "require('./package.json').version")
+        echo "CURRENT_VERSION=$VERSION" >> $GITHUB_ENV
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
         
     - name: Get commit messages since last release
       run: |
@@ -70,3 +75,28 @@ jobs:
         files: node-red-contrib-google-drive-${{ env.CURRENT_VERSION }}.tgz
         draft: false
         prerelease: false
+
+  publish:
+    needs: release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        registry-url: 'https://registry.npmjs.org'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run security audit
+      run: npm audit --audit-level=high
+      
+    - name: Publish to NPM
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
